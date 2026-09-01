@@ -1,0 +1,33 @@
+# /etc/systemd/system/gpu-metrics.service
+#
+# Runs the gpu-sidebar reporter (Node) on the GPU host so OpenCode
+# sidebars on other machines can poll GPU stats over the LAN.
+# Replaces the old Python-based gpu_metrics_server.service — same service
+# name, so an existing install just swaps ExecStart.
+#
+# Adjust before installing:
+#   - User=            the account that owns the gpu-sidebar checkout
+#   - ExecStart        the real node path (which node) and the checkout path
+#   - --port           the port you actually run it on (default 9100)
+#
+# Install (as root, via sudo), stopping any manual instance first:
+#   sudo cp ~/gpu-sidebar-reporter.service.example /etc/systemd/system/gpu-metrics.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now gpu-metrics
+#   systemctl status gpu-metrics --no-pager
+#   curl http://127.0.0.1:9100/
+
+[Unit]
+Description=gpu-sidebar GPU metrics reporter
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR-USER
+ExecStart=/usr/bin/node /path/to/gpu-sidebar/src/reporter.ts --port 9100
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

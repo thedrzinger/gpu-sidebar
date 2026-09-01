@@ -1,0 +1,60 @@
+{
+  "name": "gpu-sidebar",
+  "version": "0.1.7",
+  "description": "OpenCode TUI sidebar plugin: live GPU utilization/memory bars styled like btop's meters, with a bundled HTTP reporter for remote GPU hosts. NVIDIA only.",
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "tui",
+    "sidebar",
+    "gpu",
+    "nvidia",
+    "nvidia-smi",
+    "btop"
+  ],
+  "license": "MIT",
+  "author": "thdrzinger",
+  "type": "module",
+  "exports": {
+    "./tui": "./dist/tui.js"
+  },
+  "oc-plugin": [
+    "tui"
+  ],
+  "bin": {
+    "gpu-sidebar-reporter": "./src/reporter.ts"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md",
+    "LICENSE",
+    "gpu-sidebar-reporter.service.example"
+  ],
+  "engines": {
+    "node": ">=23.6"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "bun build src/tui.tsx --outfile dist/tui.js --target bun --format esm --external @opencode-ai/plugin --external @opentui/core --external @opentui/solid --external solid-js",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc -p tsconfig.json",
+    "preview": "node src/preview.ts",
+    "reporter": "node src/reporter.ts",
+    "prepublishOnly": "npm run clean && npm run build && npm run typecheck && npm test"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": "^1.3.5",
+    "@opentui/core": "^0.5.9",
+    "@opentui/solid": "^0.5.9",
+    "solid-js": "1.9.12"
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "^1.3.5",
+    "@opentui/core": "^0.5.9",
+    "@opentui/solid": "^0.5.9",
+    "@types/node": "^24.0.0",
+    "solid-js": "1.9.12",
+    "typescript": "^5.8.2"
+  }
+}
