@@ -112,7 +112,7 @@ function metricLine(api: TuiPluginApi, spec: BarSpec) {
     text({ fg: textFg }, ['%']),
   ]
   if (spec.valueText) {
-    children.push(text({ fg: textFg }, [` ${spec.valueText}`]))
+    children.push(text({ fg: spec.valueColor || textFg }, [` ${spec.valueText}`]))
   }
   return box({ flexDirection: 'row', gap: 0 }, children)
 }

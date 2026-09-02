@@ -14,6 +14,8 @@ export interface GpuInfo {
   memory_used_mib: number | null
   /** Total VRAM, in MiB, or null when the driver can't report it. */
   memory_total_mib: number | null
+  /** GPU core temperature, in Celsius, or null when the driver can't report it. */
+  temperature_c: number | null
 }
 
 export interface GpuStats {

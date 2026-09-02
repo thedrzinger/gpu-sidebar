@@ -11,7 +11,7 @@
 //
 //   GPU0
 //   Mem   90% ■■■■■■■■■■■■  11.2 GiB
-//   Util  0% ■■■■■■■■■■■■
+//   Util  0% ■■■■■■■■■■■■  28°C
 //
 // Usage:
 //   node src/preview.ts                       embedded mode: local GPU(s) via
@@ -61,10 +61,10 @@ const METRIC_TEXT = VISUAL_CONFIG.colorMetricText
 
 // ── frame rendering ──────────────────────────────────────────────────────────
 const SAMPLE_GPUS = [
-  { index: 0, name: 'Sample GPU 0', utilization_percent: 0, memory_used_mib: 120, memory_total_mib: 12288 },
-  { index: 1, name: 'Sample GPU 1', utilization_percent: 50, memory_used_mib: 6144, memory_total_mib: 12288 },
-  { index: 2, name: 'Sample GPU 2', utilization_percent: 100, memory_used_mib: 12288, memory_total_mib: 12288 },
-  { index: 3, name: 'Sample GPU 3', utilization_percent: null, memory_used_mib: 9947, memory_total_mib: 12288 },
+  { index: 0, name: 'Sample GPU 0', utilization_percent: 0, memory_used_mib: 120, memory_total_mib: 12288, temperature_c: 28 },
+  { index: 1, name: 'Sample GPU 1', utilization_percent: 50, memory_used_mib: 6144, memory_total_mib: 12288, temperature_c: 58 },
+  { index: 2, name: 'Sample GPU 2', utilization_percent: 100, memory_used_mib: 12288, memory_total_mib: 12288, temperature_c: 89 },
+  { index: 3, name: 'Sample GPU 3', utilization_percent: null, memory_used_mib: 9947, memory_total_mib: 12288, temperature_c: null },
 ]
 
 function sampleStats(): GpuStats {
@@ -81,7 +81,8 @@ function barLine(spec: BarSpec): string {
     .join('')
   const pctColor = spec.percentColor ? fg(spec.percentColor) : METRIC_TEXT
   const pct = `${pctColor}${spec.percentText}${RESET}${METRIC_TEXT}%${RESET}`
-  const value = spec.valueText ? ` ${METRIC_TEXT}${spec.valueText}${RESET}` : ''
+  const valueColor = spec.valueColor ? fg(spec.valueColor) : METRIC_TEXT
+  const value = spec.valueText ? ` ${valueColor}${spec.valueText}${RESET}` : ''
   return `${BOLD}${METRIC_TEXT}${spec.label}${RESET} ${bar}${RESET}${pct}${value}`
 }
 

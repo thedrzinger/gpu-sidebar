@@ -14,6 +14,8 @@ import {
   progressBarBlocks,
   formatPercent,
   formatGiB,
+  formatCelsius,
+  tempColor,
   gradientFor,
   describeGpuRow,
   describePanel,
@@ -35,6 +37,7 @@ function gpu(overrides: Partial<{
   utilization_percent: number | null
   memory_used_mib: number | null
   memory_total_mib: number | null
+  temperature_c: number | null
 }>) {
   return {
     index: 0,
@@ -42,6 +45,7 @@ function gpu(overrides: Partial<{
     utilization_percent: 0,
     memory_used_mib: 0,
     memory_total_mib: 12288,
+    temperature_c: 0,
     ...overrides,
   }
 }
@@ -171,6 +175,30 @@ test('GiB: one decimal, whole numbers drop the ".0", unknown is empty', () => {
   assert.equal(formatGiB(undefined), '')
 })
 
+test('celsius: rounds to the nearest degree, unknown is empty', () => {
+  assert.equal(formatCelsius(28), '28°C')
+  assert.equal(formatCelsius(61.6), '62°C')
+  assert.equal(formatCelsius(null), '')
+  assert.equal(formatCelsius(undefined), '')
+})
+
+test('temp color: blue at/below tempMinC, red at/above tempMaxC', () => {
+  const { tempMinC, tempMaxC, colorTempFrom, colorTempTo } = VISUAL_CONFIG
+  assert.equal(tempColor(tempMinC), colorTempFrom)
+  assert.equal(tempColor(tempMinC - 10), colorTempFrom, 'clamped below min')
+  assert.equal(tempColor(tempMaxC), colorTempTo)
+  assert.equal(tempColor(tempMaxC + 10), colorTempTo, 'clamped above max')
+})
+
+test('temp color: blends between blue and red, unknown is ""', () => {
+  const table = gradientTable(VISUAL_CONFIG.colorTempFrom, null, VISUAL_CONFIG.colorTempTo)
+  const { tempMinC, tempMaxC } = VISUAL_CONFIG
+  const mid = (tempMinC + tempMaxC) / 2
+  assert.equal(tempColor(mid), table[50])
+  assert.equal(tempColor(null), '')
+  assert.equal(tempColor(undefined), '')
+})
+
 // ── rows ─────────────────────────────────────────────────────────────────────
 
 test('row: label is prefix + index', () => {
@@ -204,12 +232,18 @@ test('row: memory line shows value, GiB readout, and gradient-colored percent', 
   assert.equal(mem.valueText, '11.2 GiB')
 })
 
-test('row: utilization line shows percent, no value readout', () => {
-  const row = describeGpuRow(gpu({ utilization_percent: 42 }))
+test('row: utilization line shows percent and temperature, gradient-colored', () => {
+  const row = describeGpuRow(gpu({ utilization_percent: 42, temperature_c: 58 }))
   const util = barFor(row, 'utilization')
   assert.equal(util.percentText, '  42')
   assert.equal(util.percentColor, gradientFor('utilization')[42])
-  assert.equal(util.valueText, '')
+  assert.equal(util.valueText, '58°C')
+  assert.equal(util.valueColor, tempColor(58))
+})
+
+test('row: memory line has no value color (temperature only shows on utilization)', () => {
+  const row = describeGpuRow(gpu({ memory_used_mib: 6144, memory_total_mib: 12288 }))
+  assert.equal(barFor(row, 'memory').valueColor, '')
 })
 
 test('row: a full bar ends in the gradient "to" color', () => {
@@ -221,7 +255,12 @@ test('row: a full bar ends in the gradient "to" color', () => {
 
 test('row: null values render empty bars with "--" readouts', () => {
   const row = describeGpuRow(
-    gpu({ utilization_percent: null, memory_used_mib: null, memory_total_mib: null }),
+    gpu({
+      utilization_percent: null,
+      memory_used_mib: null,
+      memory_total_mib: null,
+      temperature_c: null,
+    }),
   )
   for (const bar of row.bars) {
     assert.ok(bar.blocks.every((b) => b.color === EMPTY))
@@ -229,6 +268,8 @@ test('row: null values render empty bars with "--" readouts', () => {
     assert.equal(bar.percentColor, '')
   }
   assert.equal(barFor(row, 'memory').valueText, '')
+  assert.equal(barFor(row, 'utilization').valueText, '')
+  assert.equal(barFor(row, 'utilization').valueColor, '')
 })
 
 test('row: barFor picks the right spec per metric', () => {
@@ -287,9 +328,15 @@ test('config block stays sane', () => {
     'colorUtilFrom',
     'colorUtilVia',
     'colorUtilTo',
+    'colorTempFrom',
+    'colorTempTo',
   ] as const) {
     assert.ok(HEX.test(VISUAL_CONFIG[key]), `${key} must be a 24-bit hex color`)
   }
+  assert.ok(
+    VISUAL_CONFIG.tempMinC < VISUAL_CONFIG.tempMaxC,
+    'tempMinC must be less than tempMaxC',
+  )
   // "" (theme default) or hex.
   for (const key of ['colorEmpty', 'colorLabel', 'colorMetricText'] as const) {
     const v = VISUAL_CONFIG[key]

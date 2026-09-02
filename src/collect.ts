@@ -19,7 +19,7 @@ import type { GpuInfo, GpuStats } from './types.ts'
 /** The exact nvidia-smi query (same fields/order as the old Python reporter). */
 export const NVIDIA_SMI_COMMAND = [
   'nvidia-smi',
-  '--query-gpu=index,name,utilization.gpu,memory.used,memory.total',
+  '--query-gpu=index,name,utilization.gpu,memory.used,memory.total,temperature.gpu',
   '--format=csv,noheader,nounits',
 ] as const
 
@@ -94,7 +94,7 @@ export function parseNvidiaSmiOutput(stdout: string): GpuInfo[] {
     const line = rawLine.trim()
     if (!line) continue
     const row = parseCsvLine(line)
-    if (row.length < 5) continue
+    if (row.length < 6) continue
     const index = parseCount(row[0])
     const name = row[1].trim()
     if (index == null || !name) continue
@@ -104,6 +104,7 @@ export function parseNvidiaSmiOutput(stdout: string): GpuInfo[] {
       utilization_percent: parseCount(row[2]),
       memory_used_mib: parseCount(row[3]),
       memory_total_mib: parseCount(row[4]),
+      temperature_c: parseCount(row[5]),
     })
   }
   return gpus
@@ -119,10 +120,10 @@ export function nowTimestamp(): string {
 // Mirrors the old Python reporter's SELFTEST_GPUS so the selftest payload
 // stays recognizable. 4 GPUs on purpose: exercises the multi-GPU path.
 export const SELFTEST_GPUS: GpuInfo[] = [
-  { index: 0, name: 'Selftest GPU 0', utilization_percent: 12, memory_used_mib: 2048, memory_total_mib: 16384 },
-  { index: 1, name: 'Selftest GPU 1', utilization_percent: 67, memory_used_mib: 9588, memory_total_mib: 16384 },
-  { index: 2, name: 'Selftest GPU 2', utilization_percent: 0, memory_used_mib: 120, memory_total_mib: 16384 },
-  { index: 3, name: 'Selftest GPU 3', utilization_percent: 100, memory_used_mib: 15800, memory_total_mib: 16384 },
+  { index: 0, name: 'Selftest GPU 0', utilization_percent: 12, memory_used_mib: 2048, memory_total_mib: 16384, temperature_c: 28 },
+  { index: 1, name: 'Selftest GPU 1', utilization_percent: 67, memory_used_mib: 9588, memory_total_mib: 16384, temperature_c: 61 },
+  { index: 2, name: 'Selftest GPU 2', utilization_percent: 0, memory_used_mib: 120, memory_total_mib: 16384, temperature_c: 30 },
+  { index: 3, name: 'Selftest GPU 3', utilization_percent: 100, memory_used_mib: 15800, memory_total_mib: 16384, temperature_c: 91 },
 ]
 
 /** One full selftest payload (no nvidia-smi involved). */

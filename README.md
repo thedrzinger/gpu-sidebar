@@ -6,8 +6,11 @@ btop's meters. One block per GPU — however many the machine actually has:
 ```
 GPU0
 Mem   90% ■■■■■■■■■■■■  10.9 GiB   ← fraction of total VRAM in use
-Util   0% ■■■■■■■■■■■■            ← 0-100% of GPU compute
+Util   0% ■■■■■■■■■■■■  28°C      ← 0-100% of GPU compute, plus temperature
 ```
+
+The temperature readout is colored on a blue→red gradient (blue at 30°C
+and below, red at 85°C and above).
 
 **NVIDIA only** — stats are read via `nvidia-smi`. If the box has no
 nvidia-smi, the panel says so plainly instead of crashing.
@@ -111,7 +114,8 @@ names and types are part of the contract; the TUI plugin depends on them:
       "name": "Tesla P100",
       "utilization_percent": 42,
       "memory_used_mib": 9588,
-      "memory_total_mib": 16384
+      "memory_total_mib": 16384,
+      "temperature_c": 58
     }
   ]
 }
@@ -126,6 +130,7 @@ names and types are part of the contract; the TUI plugin depends on them:
 | `gpus[].utilization_percent` | int or null | GPU utilization, 0–100; `null` if the driver can't report it |
 | `gpus[].memory_used_mib` | int or null | VRAM used, in MiB |
 | `gpus[].memory_total_mib` | int or null | Total VRAM, in MiB |
+| `gpus[].temperature_c` | int or null | GPU core temperature, in Celsius; `null` if the driver can't report it |
 
 If `nvidia-smi` fails at request time, the reporter responds `500` with
 `{"error": "..."}` rather than guessing.

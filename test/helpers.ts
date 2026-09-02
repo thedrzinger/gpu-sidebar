@@ -11,6 +11,7 @@ const GPU_KEYS = [
   'utilization_percent',
   'memory_used_mib',
   'memory_total_mib',
+  'temperature_c',
 ].sort()
 
 export function assertContractShape(body: unknown): asserts body is GpuStats {
@@ -44,7 +45,7 @@ export function assertContractShape(body: unknown): asserts body is GpuStats {
         (typeof util === 'number' && util >= 0 && util <= 100),
       'utilization is 0-100 or null',
     )
-    for (const key of ['memory_used_mib', 'memory_total_mib'] as const) {
+    for (const key of ['memory_used_mib', 'memory_total_mib', 'temperature_c'] as const) {
       const v = gpu[key]
       assert.ok(v === null || typeof v === 'number', `${key} is a number or null`)
     }

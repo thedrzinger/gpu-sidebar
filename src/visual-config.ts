@@ -56,6 +56,19 @@ export const VISUAL_CONFIG = {
   colorEmpty: '#404040',
 
   /**
+   * Temperature readout gradient (shown next to Util as e.g. "28°C"):
+   * blue (cool) → red (hot), linear over [tempMinC, tempMaxC].
+   */
+  colorTempFrom: '#4a90e2',
+  colorTempTo: '#dc4c4c',
+
+  /** At or below this temperature (°C), the readout is fully blue. */
+  tempMinC: 30,
+
+  /** At or above this temperature (°C), the readout is fully red. */
+  tempMaxC: 85,
+
+  /**
    * The text parts of a metric line (label, % sign, value readout).
    * Empty string = theme default color.
    */

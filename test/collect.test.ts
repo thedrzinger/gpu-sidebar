@@ -43,14 +43,16 @@ test('parseCsvLine: escaped quotes inside a quoted field', () => {
 
 // ── nvidia-smi output parsing ────────────────────────────────────────────────
 
-/** Build a realistic nvidia-smi csv output string from [index,name,util,used,total] tuples. */
+/** Build a realistic nvidia-smi csv output string from [index,name,util,used,total,temp] tuples. */
 function smiOutput(
-  gpus: Array<[number, string, number | string, number | string, number | string]>,
+  gpus: Array<
+    [number, string, number | string, number | string, number | string, (number | string)?]
+  >,
 ): string {
   return (
     gpus
-      .map(([i, name, util, used, total]) =>
-        [i, name, String(util), String(used), String(total)].join(', '),
+      .map(([i, name, util, used, total, temp = 0]) =>
+        [i, name, String(util), String(used), String(total), String(temp)].join(', '),
       )
       .join('\n') + '\n'
   )
@@ -75,10 +77,10 @@ test('parse: one entry per GPU actually detected (1, 2, 4, 8)', () => {
 test('parse: fields map positionally, including the full 4-GPU sample', () => {
   const parsed = parseNvidiaSmiOutput(
     smiOutput([
-      [0, 'Tesla P100', 42, 9588, 16384],
-      [1, 'Tesla P100', 0, 120, 16384],
-      [2, 'Tesla P100', 100, 16384, 16384],
-      [3, 'Tesla P100', 7, 2048, 16384],
+      [0, 'Tesla P100', 42, 9588, 16384, 55],
+      [1, 'Tesla P100', 0, 120, 16384, 30],
+      [2, 'Tesla P100', 100, 16384, 16384, 91],
+      [3, 'Tesla P100', 7, 2048, 16384, 28],
     ]),
   )
   assert.equal(parsed.length, 4)
@@ -88,6 +90,7 @@ test('parse: fields map positionally, including the full 4-GPU sample', () => {
     utilization_percent: 42,
     memory_used_mib: 9588,
     memory_total_mib: 16384,
+    temperature_c: 55,
   })
   assert.deepEqual(parsed[3], {
     index: 3,
@@ -95,27 +98,29 @@ test('parse: fields map positionally, including the full 4-GPU sample', () => {
     utilization_percent: 7,
     memory_used_mib: 2048,
     memory_total_mib: 16384,
+    temperature_c: 28,
   })
 })
 
 test('parse: "N/A" values become null (driver cannot report)', () => {
   const parsed = parseNvidiaSmiOutput(
     smiOutput([
-      [0, 'Mystery GPU', 'N/A', 512, 'N/A'],
+      [0, 'Mystery GPU', 'N/A', 512, 'N/A', 'N/A'],
     ]),
   )
   assert.equal(parsed.length, 1)
   assert.equal(parsed[0].utilization_percent, null)
   assert.equal(parsed[0].memory_used_mib, 512)
   assert.equal(parsed[0].memory_total_mib, null)
+  assert.equal(parsed[0].temperature_c, null)
 })
 
 test('parse: blank and malformed lines are skipped, GPUs still counted', () => {
   const output = [
     '',
-    '0, Good GPU, 10, 100, 1024',
+    '0, Good GPU, 10, 100, 1024, 40',
     'garbage line',
-    '1, Also Good, 20, 200, 1024',
+    '1, Also Good, 20, 200, 1024, 45',
     '2, TooShort, 30',
     '',
   ].join('\n')
@@ -131,7 +136,7 @@ test('parse: empty input yields no GPUs', () => {
 })
 
 test('parse: quoted GPU model names with commas survive', () => {
-  const parsed = parseNvidiaSmiOutput('0, "Some, Ranged GPU", 5, 10, 20\n')
+  const parsed = parseNvidiaSmiOutput('0, "Some, Ranged GPU", 5, 10, 20, 40\n')
   assert.equal(parsed.length, 1)
   assert.equal(parsed[0].name, 'Some, Ranged GPU')
 })
@@ -187,6 +192,7 @@ function fakeGpus(n: number): GpuInfo[] {
     utilization_percent: [0, 25, 50, 75, 100][i % 5],
     memory_used_mib: 1024 * (i + 1),
     memory_total_mib: 16384,
+    temperature_c: 30 + i * 10,
   }))
 }
 

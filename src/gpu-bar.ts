@@ -4,12 +4,13 @@
 // All visual choices come from src/visual-config.ts.
 //
 // Each GPU becomes one block: a label line, then one line per metric in
-// `barOrder` — a short label, the percent, the bar, and (for memory) a
-// value readout. The bar style mirrors btop's meters:
+// `barOrder` — a short label, the percent, the bar, and a value readout
+// (GiB for memory, temperature for utilization). The bar style mirrors
+// btop's meters:
 //
 //   GPU0
 //   Mem   90% ■■■■■■■■■■■■  11.2 GiB
-//   Util   0% ■■■■■■■■■■■■
+//   Util   0% ■■■■■■■■■■■■  28°C
 //
 // A bar is a full row of block characters (the same char for filled and
 // empty — told apart by color). Each block's color is fixed by its
@@ -34,8 +35,9 @@ export interface BarBlock {
  *   label + " " + <blocks left to right> + percentText + "%" + (valueText ? " " + valueText : "")
  *
  * The label and the "%" sign use the metric text color; percentText uses
- * `percentColor`; the block sequence is always exactly barWidth characters,
- * so the readouts always start in the same column.
+ * `percentColor`; valueText uses `valueColor`; the block sequence is always
+ * exactly barWidth characters, so the readouts always start in the same
+ * column.
  */
 export interface BarSpec {
   metric: BarMetric
@@ -48,8 +50,13 @@ export interface BarSpec {
    * position (btop colors the number the same way). "" = metric text color.
    */
   percentColor: string
-  /** Value readout after the percent (e.g. "11.2 GiB"), or "" when none. */
+  /** Value readout after the percent (e.g. "11.2 GiB", "28°C"), or "" when none. */
   valueText: string
+  /**
+   * Color for valueText — e.g. the blue-to-red temperature gradient.
+   * "" = metric text color.
+   */
+  valueColor: string
   /** The bar, one entry per block, left to right. */
   blocks: BarBlock[]
 }
@@ -156,6 +163,26 @@ export function formatGiB(mib: number | null | undefined): string {
   return `${text} GiB`
 }
 
+/** Celsius as a readout: "28°C"; "" if unknown. */
+export function formatCelsius(tempC: number | null | undefined): string {
+  if (tempC == null || !Number.isFinite(tempC)) return ''
+  return `${Math.round(tempC)}°C`
+}
+
+// Temperature gradient: blue (cool) at tempMinC through red (hot) at
+// tempMaxC — a plain two-stop blend, built once like the bar gradients.
+const TEMP_GRADIENT = gradientTable(VISUAL_CONFIG.colorTempFrom, null, VISUAL_CONFIG.colorTempTo)
+
+/** Gradient color for a temperature: clamped to [tempMinC, tempMaxC], blue→red. */
+export function tempColor(tempC: number | null | undefined): string {
+  if (tempC == null || !Number.isFinite(tempC)) return ''
+  const { tempMinC, tempMaxC } = VISUAL_CONFIG
+  const span = tempMaxC - tempMinC
+  const position = span <= 0 ? 0 : ((tempC - tempMinC) / span) * 100
+  const clamped = Math.max(0, Math.min(100, Math.round(position)))
+  return TEMP_GRADIENT[clamped]
+}
+
 /** Percent of total VRAM in use, or null when the driver can't report it. */
 function memPercent(
   usedMib: number | null,
@@ -206,8 +233,10 @@ export function describeGpuRow(gpu: GpuInfo): GpuRow {
       percentText: formatPercent(percent),
       // btop colors the number with the gradient at the value's own position.
       percentColor: known ? table[Math.round(Math.max(0, Math.min(100, percent!)))] : '',
-      // Utilization has no readout beyond its percent — the value stays empty.
-      valueText: metric === 'memory' ? formatGiB(gpu.memory_used_mib) : '',
+      // Memory's readout is its GiB value; utilization's is the temperature.
+      valueText:
+        metric === 'memory' ? formatGiB(gpu.memory_used_mib) : formatCelsius(gpu.temperature_c),
+      valueColor: metric === 'utilization' ? tempColor(gpu.temperature_c) : '',
       blocks: progressBarBlocks(percent, VISUAL_CONFIG.barWidth, table, VISUAL_CONFIG.colorEmpty),
     }
   })
