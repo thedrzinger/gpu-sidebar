@@ -1,6 +1,6 @@
 {
   "name": "gpu-sidebar",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "OpenCode TUI sidebar plugin: live GPU utilization/memory bars styled like btop's meters, with a bundled HTTP reporter for remote GPU hosts. NVIDIA only.",
   "keywords": [
     "opencode",
