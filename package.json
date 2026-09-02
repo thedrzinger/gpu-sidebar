@@ -22,7 +22,7 @@
     "tui"
   ],
   "bin": {
-    "gpu-sidebar-reporter": "./src/reporter.ts"
+    "gpu-sidebar-reporter": "src/reporter.ts"
   },
   "files": [
     "src",
