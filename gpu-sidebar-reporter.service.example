@@ -5,9 +5,10 @@
 # Replaces the old Python-based gpu_metrics_server.service — same service
 # name, so an existing install just swaps ExecStart.
 #
-# Adjust before installing:
-#   - User=            the account that owns the gpu-sidebar checkout
-#   - ExecStart        the real node path (which node) and the checkout path
+# Install the reporter first: `npm i -g gpu-sidebar` (or `npx gpu-sidebar-reporter`
+# to run it ad hoc without installing). Then adjust before installing this unit:
+#   - User=            the account that owns the global npm install
+#   - ExecStart        the real path to the installed bin (`which gpu-sidebar-reporter`)
 #   - --port           the port you actually run it on (default 9100)
 #
 # Install (as root, via sudo), stopping any manual instance first:
@@ -24,7 +25,7 @@ After=network.target
 [Service]
 Type=simple
 User=YOUR-USER
-ExecStart=/usr/bin/node /path/to/gpu-sidebar/src/reporter.ts --port 9100
+ExecStart=/usr/local/bin/gpu-sidebar-reporter --port 9100
 Restart=on-failure
 RestartSec=3
 NoNewPrivileges=true

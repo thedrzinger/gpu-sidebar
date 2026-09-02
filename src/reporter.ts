@@ -15,6 +15,7 @@
 
 import { createServer, type Server } from 'node:http'
 import { networkInterfaces } from 'node:os'
+import { realpathSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import { collectGpuStats, selftestStats } from './collect.ts'
 import type { GpuStats } from './types.ts'
@@ -203,9 +204,13 @@ async function main(argv: string[]): Promise<void> {
 }
 
 // Only run the CLI when this file is the entry point (not when imported
-// by tests or by the TUI plugin).
+// by tests or by the TUI plugin). Resolve argv[1] to its real path first —
+// npm installs `bin` entries as symlinks, and import.meta.url already
+// reflects the module's real path, so comparing the raw argv[1] against it
+// would never match through a symlinked install (e.g. `npm i -g`, npx).
 const invokedDirectly =
-  process.argv[1] != null && import.meta.url === pathToFileURL(process.argv[1]).href
+  process.argv[1] != null &&
+  import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href
 if (invokedDirectly) {
   main(process.argv.slice(2)).catch((err: unknown) => {
     console.error(`unexpected error: ${err instanceof Error ? err.message : String(err)}`)

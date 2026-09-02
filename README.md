@@ -59,11 +59,12 @@ When the GPU(s) live on another machine (a server, a home lab box, …):
    npx gpu-sidebar-reporter --port 9100
    ```
 
-   (Or `npm i -g gpu-sidebar`, then `gpu-sidebar-reporter`.) The GPU host
-   needs Node 23.6+ — the reporter ships as plain TypeScript, no build
-   step. It serves one JSON payload per `GET /` with one entry per GPU
-   detected. `--help` prints usage **plus the exact `tui.json` line to
-   add**, with the machine's LAN address filled in for you.
+   (Or `npm i -g gpu-sidebar`, then `gpu-sidebar-reporter`.) The reporter
+   ships pre-compiled to plain JS (`dist/reporter.js`), so any reasonably
+   modern Node on the GPU host is enough to run it — no TypeScript runtime
+   support required. It serves one JSON payload per `GET /` with one entry
+   per GPU detected. `--help` prints usage **plus the exact `tui.json`
+   line to add**, with the machine's LAN address filled in for you.
 
 2. On the machine running OpenCode, use the remote form above, with the
    GPU host's address.
@@ -137,16 +138,20 @@ If `nvidia-smi` fails at request time, the reporter responds `500` with
 
 ## Development
 
-Requires Node 23.6+ and Bun. The reporter, preview and tests run as
-plain TypeScript (Node type stripping, no build); the TUI entry ships
-pre-built as `dist/tui.js` — bundled by Bun, and rebuilt automatically
-on publish.
+Requires Node 23.6+ and Bun to develop from source: the reporter, preview
+and tests run as plain TypeScript directly from `src/` (Node type
+stripping, no build needed for local dev). For publishing, both entry
+points get compiled ahead of time — the TUI entry to `dist/tui.js`
+(bundled by Bun) and the reporter to `dist/reporter.js` (plain `tsc`,
+since Node refuses to type-strip anything under `node_modules`, which is
+where an installed package's files live) — both rebuilt automatically on
+publish.
 
 ```sh
 bun install              # or npm install
 npm test                 # unit tests: btop color vectors, parser, scaling, reporter
 npm run typecheck
-npm run build            # bundle the TUI entry into dist/tui.js (needs Bun)
+npm run build            # build dist/tui.js and dist/reporter.js (needs Bun)
 node src/preview.ts      # terminal preview — same rows as the panel
 node src/preview.ts --sample --once   # built-in fake data, no GPU needed
 node src/preview.ts --url http://host:9100

@@ -4,6 +4,9 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
+import { mkdtempSync, rmSync, symlinkSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { AddressInfo } from 'node:net'
 
@@ -107,4 +110,22 @@ test('CLI: unknown flag prints an error and exits non-zero', () => {
   const res = spawnSync(process.execPath, [REPORTER, '--bogus'], { encoding: 'utf8' })
   assert.notEqual(res.status, 0)
   assert.match(res.stderr, /unknown argument/)
+})
+
+// npm installs `bin` entries as symlinks (e.g. `npm i -g`, npx). Regression
+// test for a bug where invoking through such a symlink silently did
+// nothing: process.argv[1] keeps the symlink path while import.meta.url
+// resolves to the target's real path, so a naive equality check between
+// them never matched and the CLI entry point point never ran.
+test('CLI: still runs when invoked through a symlink (npm bin install)', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'gpu-sidebar-symlink-'))
+  const link = join(dir, 'gpu-sidebar-reporter')
+  try {
+    symlinkSync(REPORTER, link)
+    const res = spawnSync(process.execPath, [link, '--selftest', '--once'], { encoding: 'utf8' })
+    assert.equal(res.status, 0, res.stderr)
+    assertContractShape(JSON.parse(res.stdout))
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
 })
