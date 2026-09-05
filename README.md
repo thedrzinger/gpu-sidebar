@@ -5,9 +5,10 @@ btop's meters. One block per GPU — however many the machine actually has:
 
 ```
 GPU0
-Mem   90% ■■■■■■■■■■■■  10.9 GiB   ← fraction of total VRAM in use
-Util   0% ■■■■■■■■■■■■  28°C      ← 0-100% of GPU compute, plus temperature
+Mem   ■■■■■■■■■■■■  90% 10.9 GiB   ← fraction of total VRAM in use
+Util  ■■■■■■■■■■■■  72% 28°C      ← 0-100% of GPU compute, plus temperature
 ```
+![App screenshot](docs/images/screenshot.png)
 
 The temperature readout is colored on a blue→red gradient (blue at 30°C
 and below, red at 85°C and above).
