@@ -34,7 +34,7 @@ Example `tui.json` for embedded mode (shows GPU(s) on the local machine):
 
 ```jsonc
 {
-  ["gpu-sidebar"]
+  "plugin": ["gpu-sidebar"]
 }
 
 ```
