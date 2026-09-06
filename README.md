@@ -26,16 +26,32 @@ nvidia-smi, the panel says so plainly instead of crashing.
 > look similar, but a TUI plugin listed in `opencode.json` will silently
 > do nothing.
 
-Add one line to the `"plugin"` list in `~/.config/opencode/tui.json`
-(create the file if you don't have one — it takes the same shape), then
-restart OpenCode. The two modes, side by side:
+Add an entry for `gpu-sidebar` to the `"plugin"` list in
+`~/.config/opencode/tui.json` (create the file if you don't have
+one — it takes the same shape), then restart OpenCode.
+
+Example `tui.json` for embedded mode (shows GPU(s) on the local machine):
 
 ```jsonc
-// Same machine as the GPU (default):
-["gpu-sidebar"]
+{
+  "plugin": ["gpu-sidebar"]
+}
 
-// Remote GPU host — fill in the GPU host's LAN address:
-["gpu-sidebar", { "url": "http://192.168.x.x:9100" }]
+```
+
+Example `tui.json` for remote mode (shows GPU(s) on a remote machine):
+
+```jsonc
+{
+  "plugin": [
+    [
+      "gpu-sidebar",
+      {
+        "url": "http://192.168.0.55:9100"
+      }
+    ]
+  ]
+}
 ```
 
 That's it. No address is baked into the package on purpose, so the repo
