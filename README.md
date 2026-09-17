@@ -1,5 +1,10 @@
 # gpu-sidebar
 
+> **This branch/version (0.1.x) targets OpenCode v1 (`opencode`) only.**
+> For OpenCode v2, use version `2.x` (npm dist-tag `latest`) or the
+> [`main`](../../tree/main) branch — the v1 and v2 plugin APIs are
+> different enough that they don't share one codebase.
+
 Live GPU utilization and memory bars in the OpenCode sidebar, styled like
 btop's meters. One block per GPU — however many the machine actually has:
 
