@@ -1,5 +1,10 @@
 # gpu-sidebar
 
+> **This branch/version (2.x) targets OpenCode v2 (`opencode2`) only.**
+> For OpenCode v1, use version `0.1.x` (npm dist-tag `legacy`) or the
+> [`oc-v1`](../../tree/oc-v1) branch — the v1 and v2 plugin APIs are
+> different enough that they don't share one codebase.
+
 Live GPU utilization and memory bars in the OpenCode sidebar, styled like
 btop's meters. One block per GPU — however many the machine actually has:
 
@@ -15,11 +20,6 @@ and below, red at 85°C and above).
 
 **NVIDIA only** — stats are read via `nvidia-smi`. If the box has no
 nvidia-smi, the panel says so plainly instead of crashing.
-
-> **This branch/version (2.x) targets OpenCode v2 (`opencode2`) only.**
-> For OpenCode v1, use version `0.1.x` (npm dist-tag `legacy`) or the
-> [`oc-v1`](../../tree/oc-v1) branch — the v1 and v2 plugin APIs are
-> different enough that they don't share one codebase.
 
 ## Install (the 30-second version)
 
