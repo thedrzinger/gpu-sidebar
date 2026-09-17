@@ -16,40 +16,44 @@ and below, red at 85°C and above).
 **NVIDIA only** — stats are read via `nvidia-smi`. If the box has no
 nvidia-smi, the panel says so plainly instead of crashing.
 
+> **This branch/version (2.x) targets OpenCode v2 (`opencode2`) only.**
+> For OpenCode v1, use version `0.1.x` (npm dist-tag `legacy`) or the
+> [`oc-v1`](../../tree/oc-v1) branch — the v1 and v2 plugin APIs are
+> different enough that they don't share one codebase.
+
 ## Install (the 30-second version)
 
-> ⚠️ **Gotcha #1: this goes in `tui.json`, NOT `opencode.json`.**
+> ⚠️ **Gotcha #1: this goes in `cli.json`, NOT `opencode.json`.**
 >
 > OpenCode has two plugin systems. The official plugin docs cover only the
 > server-side one (`opencode.json`); sidebar panels are **TUI plugins**,
-> configured in a separate file: `~/.config/opencode/tui.json`. The two
+> configured in a separate file: `~/.config/opencode/cli.json`. The two
 > look similar, but a TUI plugin listed in `opencode.json` will silently
 > do nothing.
 
-Add an entry for `gpu-sidebar` to the `"plugin"` list in
-`~/.config/opencode/tui.json` (create the file if you don't have
+Add an entry for `gpu-sidebar` to the `"plugins"` list in
+`~/.config/opencode/cli.json` (create the file if you don't have
 one — it takes the same shape), then restart OpenCode.
 
-Example `tui.json` for embedded mode (shows GPU(s) on the local machine):
+Example `cli.json` for embedded mode (shows GPU(s) on the local machine):
 
 ```jsonc
 {
-  "plugin": ["gpu-sidebar"]
+  "plugins": ["gpu-sidebar"]
 }
-
 ```
 
-Example `tui.json` for remote mode (shows GPU(s) on a remote machine):
+Example `cli.json` for remote mode (shows GPU(s) on a remote machine):
 
 ```jsonc
 {
-  "plugin": [
-    [
-      "gpu-sidebar",
-      {
+  "plugins": [
+    {
+      "package": "gpu-sidebar",
+      "options": {
         "url": "http://192.168.0.55:9100"
       }
-    ]
+    }
   ]
 }
 ```
@@ -80,8 +84,8 @@ When the GPU(s) live on another machine (a server, a home lab box, …):
    ships pre-compiled to plain JS (`dist/reporter.js`), so any reasonably
    modern Node on the GPU host is enough to run it — no TypeScript runtime
    support required. It serves one JSON payload per `GET /` with one entry
-   per GPU detected. `--help` prints usage **plus the exact `tui.json`
-   line to add**, with the machine's LAN address filled in for you.
+   per GPU detected. `--help` prints usage **plus the exact `cli.json`
+   entry to add**, with the machine's LAN address filled in for you.
 
 2. On the machine running OpenCode, use the remote form above, with the
    GPU host's address.
@@ -92,7 +96,7 @@ When the GPU(s) live on another machine (a server, a home lab box, …):
    `systemctl enable --now gpu-metrics`).
 
 The URL can also come from the `GPU_METRICS_URL` environment variable
-instead of the `tui.json` option, if you prefer.
+instead of the `cli.json` option, if you prefer.
 
 ## What it shows
 

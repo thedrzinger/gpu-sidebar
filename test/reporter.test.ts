@@ -87,23 +87,23 @@ test('CLI: --selftest --once prints one contract-shaped payload and exits 0', ()
   assertContractShape(body)
 })
 
-test('CLI: --help prints usage plus the exact tui.json line', () => {
+test('CLI: --help prints usage plus the exact cli.json entry', () => {
   const res = spawnSync(process.execPath, [REPORTER, '--help'], { encoding: 'utf8' })
   assert.equal(res.status, 0, res.stderr)
   assert.match(res.stdout, /Usage:/)
   assert.match(res.stdout, /--port/)
   assert.match(res.stdout, /--selftest/)
-  assert.match(res.stdout, /tui\.json/)
+  assert.match(res.stdout, /cli\.json/)
   assert.match(res.stdout, /opencode\.json/)
-  // The literal line to paste, with the detected host:port.
-  assert.match(res.stdout, /\["gpu-sidebar", \{ "url": "http:\/\/[^\s"]+:\d+" \}\]/)
+  // The literal entry to paste, with the detected host:port.
+  assert.match(res.stdout, /\{ "package": "gpu-sidebar", "options": \{ "url": "http:\/\/[^\s"]+:\d+" \} \}/)
 })
 
 test('CLI: no args prints the same help and exits 0', () => {
   const res = spawnSync(process.execPath, [REPORTER], { encoding: 'utf8' })
   assert.equal(res.status, 0, res.stderr)
   assert.match(res.stdout, /Usage:/)
-  assert.match(res.stdout, /\["gpu-sidebar", \{ "url": "http:\/\/[^\s"]+:\d+" \}\]/)
+  assert.match(res.stdout, /\{ "package": "gpu-sidebar", "options": \{ "url": "http:\/\/[^\s"]+:\d+" \} \}/)
 })
 
 test('CLI: unknown flag prints an error and exits non-zero', () => {

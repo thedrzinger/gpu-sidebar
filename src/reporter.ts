@@ -10,7 +10,7 @@
 // Usage:
 //   gpu-sidebar-reporter [--port 9100] [--bind 0.0.0.0] [--selftest] [--once]
 //
-// With no args (or --help) it prints usage plus the exact tui.json line
+// With no args (or --help) it prints usage plus the exact cli.json entry
 // to add on the machine that runs the OpenCode sidebar.
 
 import { createServer, type Server } from 'node:http'
@@ -67,7 +67,7 @@ export function createReporterServer(options: ReporterOptions): Server {
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
 
-/** Best-effort: first non-internal IPv4 address, for the tui.json hint. */
+/** Best-effort: first non-internal IPv4 address, for the cli.json hint. */
 function detectLanIp(): string | undefined {
   const ifaces = networkInterfaces()
   for (const list of Object.values(ifaces)) {
@@ -92,11 +92,11 @@ Options:
   --once        Print one sample as JSON and exit (no server started)
   --help        Show this help
 
-Once it is running, point the sidebar plugin at it by adding this line to
-the "plugin" list in ~/.config/opencode/tui.json — NOT opencode.json
+Once it is running, point the sidebar plugin at it by adding this entry to
+the "plugins" list in ~/.config/opencode/cli.json — NOT opencode.json
 (this is a TUI plugin; the official plugin docs don't cover that system):
 
-  [${JSON.stringify(PACKAGE_NAME)}, { "url": ${JSON.stringify(`http://${host}:${port}`)} }]
+  { "package": ${JSON.stringify(PACKAGE_NAME)}, "options": { "url": ${JSON.stringify(`http://${host}:${port}`)} } }
 
 Reads stats via nvidia-smi. NVIDIA GPUs only.
 `
