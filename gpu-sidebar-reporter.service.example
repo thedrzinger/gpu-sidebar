@@ -5,8 +5,11 @@
 # Replaces the old Python-based gpu_metrics_server.service — same service
 # name, so an existing install just swaps ExecStart.
 #
-# Install the reporter first: `npm i -g gpu-sidebar` (or `npx gpu-sidebar-reporter`
-# to run it ad hoc without installing). Then adjust before installing this unit:
+# Install the reporter first: `npm i -g gpu-sidebar@legacy` (or `npx -p
+# gpu-sidebar@legacy gpu-sidebar-reporter` to run it ad hoc without
+# installing — modern npm needs the -p flag since the bin name differs
+# from the package name; pinned to @legacy since the bare name now
+# resolves to the v2-only line). Then adjust before installing this unit:
 #   - User=            the account that owns the global npm install
 #   - ExecStart        the real path to the installed bin (`which gpu-sidebar-reporter`)
 #   - --port           the port you actually run it on (default 9100)

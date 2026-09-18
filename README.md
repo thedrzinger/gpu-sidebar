@@ -82,10 +82,14 @@ When the GPU(s) live on another machine (a server, a home lab box, …):
 1. On the GPU host, run the bundled reporter — no Python needed:
 
    ```sh
-   npx gpu-sidebar-reporter --port 9100
+   npx -p gpu-sidebar@legacy gpu-sidebar-reporter --port 9100
    ```
 
-   (Or `npm i -g gpu-sidebar`, then `gpu-sidebar-reporter`.) The reporter
+   (Modern npm needs `-p <package>` when the bin name differs from the
+   package name — a bare `npx gpu-sidebar-reporter` 404s, confirmed live.
+   Pinned to `@legacy` for the same reason as the plugin entry above — an
+   unpinned name resolves to the v2-only `latest`. Or
+   `npm i -g gpu-sidebar@legacy`, then `gpu-sidebar-reporter`.) The reporter
    ships pre-compiled to plain JS (`dist/reporter.js`), so any reasonably
    modern Node on the GPU host is enough to run it — no TypeScript runtime
    support required. It serves one JSON payload per `GET /` with one entry
