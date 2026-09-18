@@ -95,15 +95,17 @@ test('CLI: --help prints usage plus the exact tui.json line', () => {
   assert.match(res.stdout, /--selftest/)
   assert.match(res.stdout, /tui\.json/)
   assert.match(res.stdout, /opencode\.json/)
-  // The literal line to paste, with the detected host:port.
-  assert.match(res.stdout, /\["gpu-sidebar", \{ "url": "http:\/\/[^\s"]+:\d+" \}\]/)
+  // The literal line to paste, with the detected host:port. Pinned to
+  // @legacy — the bare name resolves to the v2-only latest on npm, which
+  // doesn't work under v1.
+  assert.match(res.stdout, /\["gpu-sidebar@legacy", \{ "url": "http:\/\/[^\s"]+:\d+" \}\]/)
 })
 
 test('CLI: no args prints the same help and exits 0', () => {
   const res = spawnSync(process.execPath, [REPORTER], { encoding: 'utf8' })
   assert.equal(res.status, 0, res.stderr)
   assert.match(res.stdout, /Usage:/)
-  assert.match(res.stdout, /\["gpu-sidebar", \{ "url": "http:\/\/[^\s"]+:\d+" \}\]/)
+  assert.match(res.stdout, /\["gpu-sidebar@legacy", \{ "url": "http:\/\/[^\s"]+:\d+" \}\]/)
 })
 
 test('CLI: unknown flag prints an error and exits non-zero', () => {

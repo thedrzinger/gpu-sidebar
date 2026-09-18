@@ -96,7 +96,7 @@ Once it is running, point the sidebar plugin at it by adding this line to
 the "plugin" list in ~/.config/opencode/tui.json — NOT opencode.json
 (this is a TUI plugin; the official plugin docs don't cover that system):
 
-  [${JSON.stringify(PACKAGE_NAME)}, { "url": ${JSON.stringify(`http://${host}:${port}`)} }]
+  [${JSON.stringify(PACKAGE_NAME + '@legacy')}, { "url": ${JSON.stringify(`http://${host}:${port}`)} }]
 
 Reads stats via nvidia-smi. NVIDIA GPUs only.
 `

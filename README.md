@@ -39,10 +39,14 @@ Example `tui.json` for embedded mode (shows GPU(s) on the local machine):
 
 ```jsonc
 {
-  "plugin": ["gpu-sidebar"]
+  "plugin": ["gpu-sidebar@legacy"]
 }
 
 ```
+
+> Pin to the `legacy` npm dist-tag, not the bare package name — an
+> unpinned `"gpu-sidebar"` resolves to whatever `latest` currently is,
+> which is the v2-only line, and won't work under OpenCode v1.
 
 Example `tui.json` for remote mode (shows GPU(s) on a remote machine):
 
@@ -50,7 +54,7 @@ Example `tui.json` for remote mode (shows GPU(s) on a remote machine):
 {
   "plugin": [
     [
-      "gpu-sidebar",
+      "gpu-sidebar@legacy",
       {
         "url": "http://192.168.0.55:9100"
       }
